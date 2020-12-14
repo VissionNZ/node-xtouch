@@ -1,0 +1,14 @@
+{
+  "name": "obs-xtouch",
+  "version": "1.0.0",
+  "description": "Websocket based middleware for two way control of x-touch extender to OBS",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Stefan Taber",
+  "license": "ISC",
+  "dependencies": {
+    "obs-websocket-js": "^4.0.2"
+  }
+}
