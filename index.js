@@ -49,7 +49,7 @@ class LcdState {
     // TODO: implement PAUSE_TICK
     advanceTop(forwards = true) {
         if(forwards) this.scrollOffsetTop = this.scrollOffsetTop == this.topLine.length + 2 ? 0 : this.scrollOffsetTop + 1;
-        if(!forwards) this.scrollOffsetTop = this.scrollOffsetTop == 0 ? this.topLine.length + 5 : this.scrollOffsetTop - 1;
+        if(!forwards) this.scrollOffsetTop = this.scrollOffsetTop == 0 ? this.topLine.length + 2 : this.scrollOffsetTop - 1;
     }
 
     advanceBottom(forwards = true) {
@@ -205,6 +205,11 @@ output.sendMessage(setFader(8, 79));
 output.sendMessage(setStripLight(3, 'rec', 'flash'));
 output.sendMessage(setStripLight(5, 'select', 'on'));
 output.sendMessage(setStripLight(1, 'mute', 'off'));
+output.sendMessage(setStripLight(2, 'mute', 'on'));
+output.sendMessage(setStripLight(4, 'solo', 'on'));
+output.sendMessage(setStripLight(1, 'rec', 'on'));
+output.sendMessage(setStripLight(6, 'select', 'flash'));
+output.sendMessage(setStripLight(7, 'solo', 'flash'));
 
 // Audio level LED set test
 output.sendMessage(setAudioLevelLed(1, 1));
@@ -227,15 +232,19 @@ output.sendMessage(setRotaryLevelLed(7, 7));
 output.sendMessage(setRotaryLevelLed(8, 8));
 
 // Test LCD update
+lcdStates[1] = new LcdState('red', 'upper', 'Kind of long.', 'And another.');
 lcdStates[2] = new LcdState('magenta', 'both', 'Kind of long.', 'And another.');
 lcdStates[4] = new LcdState('green', 'none', 'Kind of long.', 'And another.');
 lcdStates[3] = new LcdState('blue', 'upper', 'Kind of long.', 'And another.');
+lcdStates[5] = new LcdState('white', 'both', 'Kind of long.', 'And another.');
+lcdStates[6] = new LcdState('cyan', 'both', 'Kind of long.', 'And another.');
 lcdStates[8] = new LcdState('yellow', 'lower', 'Kind of long.', 'And another.');
 
 setInterval(() => {
     for(const [key, lcdState] of Object.entries(lcdStates)) {
         if(lcdState == null) continue;
-        lcdState.advance();
+        lcdState.advanceTop(false);
+        lcdState.advanceBottom();
         output.sendMessage(updateLcdWithState(key, lcdState));
     }
 }, 300);

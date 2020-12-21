@@ -3,12 +3,12 @@ OBS-websocket based Behringer x-touch-extender interface for OBS studio.
 
 ## Status and plans (1st half 2020)
 In active development. Just started! Following features are planned for "V1.0.0"
-- Build simple node functions mapping to all the x-touch extender features.
-    - Fader levels in/out
-    - Buttons (on/flashing/off), pressed outputs
-    - Audio meter level set
-    - Scribble strips with scrolling text
-    - Rotary in/out
+- Build simple node functions mapping to all the x-touch extender features (bidirectional).
+    - Fader levels (**set position done**)
+    - Buttons (on/flashing/off) (**done**), pressed outputs
+    - Audio meter level set (**done**)
+    - Scribble strips with scrolling text (**done**)
+    - Rotary (**set led done**)
 
 - Map each audio source in OBS to a slider
     - Cycle through monitor/monitor&output/output modes
