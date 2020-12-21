@@ -1,14 +1,14 @@
 # node-xtouch
-OBS-websocket based Behringer x-touch-extender interface for OBS studio.
+Behringer x-touch-extender interface for OBS studio.
 
 ## Status and plans (1st half 2020)
 In active development. Just started! Following features are planned for "V1.0.0"
-- Build simple node functions mapping to all the x-touch extender features.
-    - Fader levels in/out
-    - Buttons (on/flashing/off), pressed outputs
-    - Audio meter level set
-    - Scribble strips with scrolling text
-    - Rotary in/out
+- Build simple node functions mapping to all the x-touch extender features (bidirectional).
+    - Fader levels (**set position done**)
+    - Buttons (on/flashing/off) (**done**), pressed outputs
+    - Audio meter level set (**done**)
+    - Scribble strips with scrolling text (**done**)
+    - Rotary (**set led done**)
 
 - Map each audio source in OBS to a slider
     - Cycle through monitor/monitor&output/output modes
@@ -27,6 +27,11 @@ In active development. Just started! Following features are planned for "V1.0.0"
 - Streaming controls
 - Video filters?
 - If someone wants to buy me the full x-touch unit I'll integrate that?
+- Split project out
+    - node-xtouch module is a separate abstraction, with menu layers, event firing etc. Ability to use anywhere. 
+    - Plugin for OBS Studio
+    - Plugin for VoiceMeeter
+    
 ## Installation
 ### Requirements
 - Uses node-midi package, which requires at least Python 2.7.2 installed and included in the system path variable.
