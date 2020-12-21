@@ -1,5 +1,6 @@
 // Imports
 const hex = require('ascii-hex');
+const LcdState = require('./LcdState');
 
 // Define constants
 const FADER = {
@@ -23,47 +24,6 @@ const LCD_INVERT = {
 // it will pause at the start of the string before scrolling.
 const PAUSE_TICK = 3;
 
-class LcdState {
-    // Scroll delta is float between 0 and 1. 
-    constructor(color, invert, topFullText, bottomFullText) {
-        this.color = color;
-        this.invert = invert;
-        this.topLine = topFullText;
-        this.bottomLine = bottomFullText;
-        this.scrollOffsetTop = 0;
-        this.scrollOffsetBottom = 0;
-    }
-
-    get topSevenChars() {
-        if(this.topLine.length <= 7) return this.topLine.padEnd(7);
-        let topLinePadded = this.topLine + '   ' + this.topLine.substring(0, 7);
-        return topLinePadded.substring(this.scrollOffsetTop, this.scrollOffsetTop + 7);
-    }
-
-    get bottomSevenChars() {
-        if(this.bottomLine.length <= 7) return this.bottomLine.padEnd(7);
-        let bottomLinePadded = this.bottomLine + '   ' + this.bottomLine.substring(0, 7);
-        return bottomLinePadded.substring(this.scrollOffsetBottom, this.scrollOffsetBottom + 7);
-    }
-
-    // TODO: implement PAUSE_TICK
-    advanceTop(forwards = true) {
-        if(forwards) this.scrollOffsetTop = this.scrollOffsetTop == this.topLine.length + 2 ? 0 : this.scrollOffsetTop + 1;
-        if(!forwards) this.scrollOffsetTop = this.scrollOffsetTop == 0 ? this.topLine.length + 2 : this.scrollOffsetTop - 1;
-    }
-
-    advanceBottom(forwards = true) {
-        if(forwards) this.scrollOffsetBottom = this.scrollOffsetBottom == this.bottomLine.length + 2 ? 0 : this.scrollOffsetBottom + 1;
-        if(!forwards) this.scrollOffsetBottom = this.scrollOffsetBottom == 0 ? this.bottomLine.length + 2 : this.scrollOffsetBottom - 1;
-    }
-
-    advance() {
-        this.advanceTop();
-        this.advanceBottom();
-    }
-
-}
-
 // Storage for the current state of an LCD panel, as we'll update the messages every tick,
 // and changing lines/colors/invert independently is possible.
 var lcdStates = {
@@ -72,7 +32,7 @@ var lcdStates = {
 
 // Lazy instantiation of Lcd states
 function initLcd(strip) {
-    lcdStates[strip] === null ? lcdStates[strip] = new LcdState(0, null, null, null) : null;
+    lcdStates[strip] === null ? lcdStates[strip] = new LcdState('off', 'none', '', '') : null;
 }
 
 // Takes an LcdState object and creates the update message to send.
@@ -100,19 +60,38 @@ function setLcdColor(strip, color) {
     if(strip < 1 || strip > 8) throw "Strip number out of bounds (1-8)";
     if(!(color in LCD_COLORS)) throw "Invalid LCD color. Options are: red, green, yellow, blue, magenta, cyan, white, or off.";
     initLcd(strip);
+    lcdStates[strip].color = color;
+
+    return updateLcdWithState(strip, lcdStates[strip]);
 }
 
 // Convenience to set just the upper text part of the LCD rather than the whole state.
 function setLcdTopLine(strip, message, invert) {
     if(strip < 1 || strip > 8) throw "Strip number out of bounds (1-8)";
+    if(!typeof inver === 'boolean') throw "Invalid LCD invert state. Use true or false.";
     initLcd(strip);
+
     lcdStates[strip].topFullText = message;
+    if(invert && (lcdStates[strip].invert === 'lower')) lcdStates[strip].invert = 'both';
+    if(invert && (lcdStates[strip].invert === 'none')) lcdStates[strip].invert = 'upper';
+    if(!invert && (lcdStates[strip].invert === 'upper')) lcdStates[strip].invert = 'none';
+    if(!invert && (lcdStates[strip].invert === 'both')) lcdStates[strip].invert = 'lower';
+
+    return updateLcdWithState(strip, lcdStates[strip]);
 }
 
 // Convenience to set just the bottom text part of the LCD rather than the whole state.
 function setLcdBottomLine(strip, message, invert) {
     if(strip < 1 || strip > 8) throw "Strip number out of bounds (1-8)";
+    if(!typeof invert === 'boolean') throw "Invalid LCD invert state. Use true or false.";
     initLcd(strip);
+    lcdStates[strip].bottomFullText = message;
+    if(invert && (lcdStates[strip].invert === 'upper')) lcdStates[strip].invert = 'both';
+    if(invert && (lcdStates[strip].invert === 'none')) lcdStates[strip].invert = 'lower';
+    if(!invert && (lcdStates[strip].invert === 'lower')) lcdStates[strip].invert = 'none';
+    if(!invert && (lcdStates[strip].invert === 'both')) lcdStates[strip].invert = 'upper';
+
+    return updateLcdWithState(strip, lcdStates[strip]);
 }
 
 // Moves the fader to the desired level. Note a level of 100 = 0db on the fader.
@@ -163,88 +142,14 @@ function setRotaryLevelLed(strip, level) {
     return message;
 }
 
-const OBSWebSocket = require ('obs-websocket-js');
-const Midi = require('midi');
-const obs = new OBSWebSocket();
-
-obs.on('error', err => {
-    console.error('socket error:', err);
-});
-
-
-// Set up a new input.
-const input = new Midi.Input();
-
-input.openPort(0);
-input.ignoreTypes(true, false, false);
-
-// Configure a callback.
-input.on('message', (deltaTime, message) => {
-    console.log(`m: ${message} d: ${deltaTime}`);
-  });
-
-const output = new Midi.output();
-output.openPort(0);
-
-
-
-
-
-
-// Fader setting test
-output.sendMessage(setFader(1, 20));
-output.sendMessage(setFader(2, 100));
-output.sendMessage(setFader(3, 127));
-output.sendMessage(setFader(4, 50));
-output.sendMessage(setFader(5, 66));
-output.sendMessage(setFader(6, 5));
-output.sendMessage(setFader(7, 110));
-output.sendMessage(setFader(8, 79));
-
-// Strip light setting test.
-output.sendMessage(setStripLight(3, 'rec', 'flash'));
-output.sendMessage(setStripLight(5, 'select', 'on'));
-output.sendMessage(setStripLight(1, 'mute', 'off'));
-output.sendMessage(setStripLight(2, 'mute', 'on'));
-output.sendMessage(setStripLight(4, 'solo', 'on'));
-output.sendMessage(setStripLight(1, 'rec', 'on'));
-output.sendMessage(setStripLight(6, 'select', 'flash'));
-output.sendMessage(setStripLight(7, 'solo', 'flash'));
-
-// Audio level LED set test
-output.sendMessage(setAudioLevelLed(1, 1));
-output.sendMessage(setAudioLevelLed(2, 2));
-output.sendMessage(setAudioLevelLed(3, 3));
-output.sendMessage(setAudioLevelLed(4, 4));
-output.sendMessage(setAudioLevelLed(5, 5));
-output.sendMessage(setAudioLevelLed(6, 6));
-output.sendMessage(setAudioLevelLed(7, 7));
-output.sendMessage(setAudioLevelLed(8, 8));
-
-// Rotary level LED set test
-output.sendMessage(setRotaryLevelLed(1, 9));
-output.sendMessage(setRotaryLevelLed(2, 10));
-output.sendMessage(setRotaryLevelLed(3, 11));
-output.sendMessage(setRotaryLevelLed(4, 12));
-output.sendMessage(setRotaryLevelLed(5, 5));
-output.sendMessage(setRotaryLevelLed(6, 6));
-output.sendMessage(setRotaryLevelLed(7, 7));
-output.sendMessage(setRotaryLevelLed(8, 8));
-
-// Test LCD update
-lcdStates[1] = new LcdState('red', 'upper', 'Kind of long.', 'And another.');
-lcdStates[2] = new LcdState('magenta', 'both', 'Kind of long.', 'And another.');
-lcdStates[4] = new LcdState('green', 'none', 'Kind of long.', 'And another.');
-lcdStates[3] = new LcdState('blue', 'upper', 'Kind of long.', 'And another.');
-lcdStates[5] = new LcdState('white', 'both', 'Kind of long.', 'And another.');
-lcdStates[6] = new LcdState('cyan', 'both', 'Kind of long.', 'And another.');
-lcdStates[8] = new LcdState('yellow', 'lower', 'Kind of long.', 'And another.');
-
-setInterval(() => {
-    for(const [key, lcdState] of Object.entries(lcdStates)) {
-        if(lcdState == null) continue;
-        lcdState.advanceTop(false);
-        lcdState.advanceBottom();
-        output.sendMessage(updateLcdWithState(key, lcdState));
-    }
-}, 300);
+module.exports = {
+    setRotaryLevelLed: setRotaryLevelLed,
+    setLcdColor: setLcdColor,
+    setLcdTopLine: setLcdTopLine,
+    setLcdBottomLine: setLcdBottomLine,
+    setAudioLevelLed: setAudioLevelLed,
+    setStripLight: setStripLight,
+    setFader: setFader,
+    updateLcdWithState: updateLcdWithState,
+    lcdStates: lcdStates
+};

@@ -85,21 +85,4 @@ function button(message, delta) {
     midiEvent.emit('strip_button', buttonName, strip, message[2] === 127 ? 'on' : 'off', delta);
 }
 
-
-// Just testing
-midiEvent.on('rotary_turn', (strip, value) => {
-    console.log('rotary turn - strip:' + strip + ' value:' + value);
-});
-midiEvent.on('rotary_press', (strip, value) => {
-    console.log('rotary press - strip:' + strip + ' value:' + value);
-});
-midiEvent.on('fader_move', (strip, value) => {
-    console.log('fader move - strip:' + strip + ' value:' + value);
-});
-midiEvent.on('fader_touch', (strip, value) => {
-    console.log('fader touch - strip:' + strip + ' value:' + value);
-});
-midiEvent.on('strip_button', (name, strip, value) => {
-    console.log('strip button - name:' + name + ' strip:' + strip + ' value:' + value);
-});
-  
+module.exports = midiEvent;
