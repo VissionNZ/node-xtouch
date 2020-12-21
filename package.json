@@ -9,6 +9,8 @@
   "author": "Stefan Taber",
   "license": "ISC",
   "dependencies": {
+    "ascii-hex": "^1.0.1",
+    "midi": "^1.0.0",
     "obs-websocket-js": "^4.0.2"
   }
 }
