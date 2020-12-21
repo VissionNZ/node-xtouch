@@ -57,6 +57,11 @@ class LcdState {
         if(!forwards) this.scrollOffsetBottom = this.scrollOffsetBottom == 0 ? this.bottomLine.length + 2 : this.scrollOffsetBottom - 1;
     }
 
+    advance() {
+        this.advanceTop();
+        this.advanceBottom();
+    }
+
 }
 
 // Storage for the current state of an LCD panel, as we'll update the messages every tick,
@@ -222,13 +227,15 @@ output.sendMessage(setRotaryLevelLed(7, 7));
 output.sendMessage(setRotaryLevelLed(8, 8));
 
 // Test LCD update
-var state = new LcdState('magenta', 'upper', 'Kind of long.', 'And another.');
-var state2 = new LcdState('blue', 'upper', 'Kind of long.', 'And another.');
-var state3 = new LcdState('yellow', 'lower', 'Kind of long.', 'And another.');
+lcdStates[2] = new LcdState('magenta', 'both', 'Kind of long.', 'And another.');
+lcdStates[4] = new LcdState('green', 'none', 'Kind of long.', 'And another.');
+lcdStates[3] = new LcdState('blue', 'upper', 'Kind of long.', 'And another.');
+lcdStates[8] = new LcdState('yellow', 'lower', 'Kind of long.', 'And another.');
+
 setInterval(() => {
-    state.advanceTop();
-    state.advanceBottom(false);
-    output.sendMessage(updateLcdWithState(6, state));
-    output.sendMessage(updateLcdWithState(8, state2));
-    output.sendMessage(updateLcdWithState(2, state3));
+    for(const [key, lcdState] of Object.entries(lcdStates)) {
+        if(lcdState == null) continue;
+        lcdState.advance();
+        output.sendMessage(updateLcdWithState(key, lcdState));
+    }
 }, 300);
