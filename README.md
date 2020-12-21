@@ -3,12 +3,13 @@ Behringer x-touch-extender interface for OBS studio.
 
 ## Status and plans (1st half 2020)
 In active development. Just started! Following features are planned for "V1.0.0"
-- Build simple node functions mapping to all the x-touch extender features (bidirectional).
-    - Fader levels (**set position done**)
-    - Buttons (on/flashing/off) (**done**), pressed outputs
+
+- Build simple node functions mapping to all the x-touch extender features (bidirectional) (**DONE! v0.1.0**).
+    - Fader levels (**done**)
+    - Buttons (on/flashing/off) (**done**)
     - Audio meter level set (**done**)
     - Scribble strips with scrolling text (**done**)
-    - Rotary (**set led done**)
+    - Rotary (**done**)
 
 - Map each audio source in OBS to a slider
     - Cycle through monitor/monitor&output/output modes
