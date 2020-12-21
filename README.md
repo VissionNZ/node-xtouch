@@ -1,4 +1,4 @@
-# node-obs-xtouch
+# node-xtouch
 OBS-websocket based Behringer x-touch-extender interface for OBS studio.
 
 ## Status and plans (1st half 2020)
