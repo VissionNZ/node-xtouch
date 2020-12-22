@@ -45,13 +45,14 @@ Idea is to control OBS studio's main features via the X-Touch Extender.
 - Also requires a C++ compiler - don't worry it's not that hard! [Visual Studio Community](https://visualstudio.microsoft.com/vs/community/), XCode (Mac Build Tools), or the multitude of Linux ones.
 - Your Linux distro needs ALSA to be installed and configured, and the libasound2-dev package.
 
-### Installation and Use
+### Installation and Use For Testing (pre-npm availability)
 - Make sure your system is set up
-    - Python >2.7.2 (in system PATH)
+    - Python >=2.7.2 (in system PATH)
     - C++ compiler (in system PATH)
     - NodeJS installed (npm/node in system PATH)
 - Download and extract, or clone the repo to where you want to 'install it'
     - ```git clone https://github.com/VissionNZ/node-xtouch.git```
+- Run ``npm install`` to build everything and install dependencies.
 - To test, run ```node x_touch_testers.js``` in the install directory with the X-Touch Extender plugged in. If things move/light up wohoo! Try moving/pushing some stuff.
 - Start developing!
     - See the [wiki](https://github.com/VissionNZ/node-xtouch/wiki) for more details on the current API.
