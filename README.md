@@ -54,6 +54,7 @@ Idea is to control OBS studio's main features via the X-Touch Extender.
     - ```git clone https://github.com/VissionNZ/node-xtouch.git```
 - To test, run ```node x_touch_testers.js``` in the install directory with the X-Touch Extender plugged in. If things move/light up wohoo! Try moving/pushing some stuff.
 - Start developing!
+    - See the [wiki](https://github.com/VissionNZ/node-xtouch/wiki) for more details on the current API.
     - **x_touch_events.js** : fires all the various events from the unit.
     - **x_touch_setters.js** : methods to set all the options on the unit.
     - **LcdState.js** : Just the LcdState class which keeps a track of each LCD screen, and has some methods you can call:
