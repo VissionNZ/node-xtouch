@@ -31,16 +31,20 @@ var lcdStates = {
 }
 
 // Lazy instantiation of Lcd states
-function initLcd(strip) {
-    lcdStates[strip] === null ? lcdStates[strip] = new LcdState('off', 'none', '', '') : null;
+function initLcd(strip) 
+{
+    lcdStates[strip] === null 
+        ? lcdStates[strip] = new LcdState('off', 'none', '', '') 
+        : null;
 }
 
 // Takes an LcdState object and creates the update message to send.
 // We have to update the whole LCD at once, can't just do line by line or color only. 
 // That's why we've got the convenience methods below. 
-function updateLcdWithState(strip, state) {
-    if(!(state instanceof LcdState)) throw "You need to pass an LcdState object!";
-    if(strip < 1 || strip > 8) throw "Strip number out of bounds (1-8)";
+function updateLcdWithState(strip, state) 
+{
+    if (!(state instanceof LcdState)) throw "You need to pass an LcdState object!";
+    if (strip < 1 || strip > 8) throw "Strip number out of bounds (1-8)";
 
     // SysEx header with device id 15 for x-touch extender (not 42 like the manual said...)
     let header = [0xF0, 0x00, 0x20, 0x32, 0x15, 0x4C];
@@ -56,48 +60,59 @@ function updateLcdWithState(strip, state) {
 }
 
 // Convenience to set just the color part of the LCD rather than the whole state.
-function setLcdColor(strip, color) {
-    if(strip < 1 || strip > 8) throw "Strip number out of bounds (1-8)";
-    if(!(color in LCD_COLORS)) throw "Invalid LCD color. Options are: red, green, yellow, blue, magenta, cyan, white, or off.";
+function setLcdColor(strip, color) 
+{
+    if (strip < 1 || strip > 8) throw "Strip number out of bounds (1-8)";
+    if (!(color in LCD_COLORS)) throw "Invalid LCD color. Options are: red, green, yellow, blue, magenta, cyan, white, or off.";
+    
     initLcd(strip);
+    
     lcdStates[strip].color = color;
 
     return updateLcdWithState(strip, lcdStates[strip]);
 }
 
 // Convenience to set just the upper text part of the LCD rather than the whole state.
-function setLcdTopLine(strip, message, invert) {
-    if(strip < 1 || strip > 8) throw "Strip number out of bounds (1-8)";
-    if(!typeof inver === 'boolean') throw "Invalid LCD invert state. Use true or false.";
+function setLcdTopLine(strip, message, invert) 
+{
+    if (strip < 1 || strip > 8) throw "Strip number out of bounds (1-8)";
+    if (!typeof inver === 'boolean') throw "Invalid LCD invert state. Use true or false.";
+    
     initLcd(strip);
 
     lcdStates[strip].topFullText = message;
-    if(invert && (lcdStates[strip].invert === 'lower')) lcdStates[strip].invert = 'both';
-    if(invert && (lcdStates[strip].invert === 'none')) lcdStates[strip].invert = 'upper';
-    if(!invert && (lcdStates[strip].invert === 'upper')) lcdStates[strip].invert = 'none';
-    if(!invert && (lcdStates[strip].invert === 'both')) lcdStates[strip].invert = 'lower';
+    
+    if (invert && (lcdStates[strip].invert === 'lower')) lcdStates[strip].invert = 'both';
+    if (invert && (lcdStates[strip].invert === 'none')) lcdStates[strip].invert = 'upper';
+    if (!invert && (lcdStates[strip].invert === 'upper')) lcdStates[strip].invert = 'none';
+    if (!invert && (lcdStates[strip].invert === 'both')) lcdStates[strip].invert = 'lower';
 
     return updateLcdWithState(strip, lcdStates[strip]);
 }
 
 // Convenience to set just the bottom text part of the LCD rather than the whole state.
-function setLcdBottomLine(strip, message, invert) {
-    if(strip < 1 || strip > 8) throw "Strip number out of bounds (1-8)";
-    if(!typeof invert === 'boolean') throw "Invalid LCD invert state. Use true or false.";
+function setLcdBottomLine(strip, message, invert) 
+{
+    if (strip < 1 || strip > 8) throw "Strip number out of bounds (1-8)";
+    if (!typeof invert === 'boolean') throw "Invalid LCD invert state. Use true or false.";
+    
     initLcd(strip);
+    
     lcdStates[strip].bottomFullText = message;
-    if(invert && (lcdStates[strip].invert === 'upper')) lcdStates[strip].invert = 'both';
-    if(invert && (lcdStates[strip].invert === 'none')) lcdStates[strip].invert = 'lower';
-    if(!invert && (lcdStates[strip].invert === 'lower')) lcdStates[strip].invert = 'none';
-    if(!invert && (lcdStates[strip].invert === 'both')) lcdStates[strip].invert = 'upper';
+    
+    if (invert && (lcdStates[strip].invert === 'upper')) lcdStates[strip].invert = 'both';
+    if (invert && (lcdStates[strip].invert === 'none')) lcdStates[strip].invert = 'lower';
+    if (!invert && (lcdStates[strip].invert === 'lower')) lcdStates[strip].invert = 'none';
+    if (!invert && (lcdStates[strip].invert === 'both')) lcdStates[strip].invert = 'upper';
 
     return updateLcdWithState(strip, lcdStates[strip]);
 }
 
 // Moves the fader to the desired level. Note a level of 100 = 0db on the fader.
-function setFader(strip, level) {
-    if(strip < 1 || strip > 8) throw "Strip number out of bounds (1-8)";
-    if(level < 0 || strip > 127) throw "Fader level out of bounds (0-127)";
+function setFader(strip, level) 
+{
+    if (strip < 1 || strip > 8) throw "Strip number out of bounds (1-8)";
+    if (level < 0 || strip > 127) throw "Fader level out of bounds (0-127)";
 
     let message = [176, FADER[strip], level];
 
@@ -105,10 +120,11 @@ function setFader(strip, level) {
 }
 
 // Sets the button (select, mute, solo or rec) lights on the fader strips appropriately. 
-function setStripLight(strip, button, state) {
-    if(strip < 1 || strip > 8) throw "Strip number out of bounds (1-8)";
-    if(!(button in STRIP_BUTTON)) throw "Invalid strip button. 'rec', 'solo', 'mute' or 'select' are supported.";
-    if(!(state in BUTTON_STATES)) throw "Invalid button state. 'off', 'on' or 'flashing' are supported.";
+function setStripLight(strip, button, state) 
+{
+    if (strip < 1 || strip > 8) throw "Strip number out of bounds (1-8)";
+    if (!(button in STRIP_BUTTON)) throw "Invalid strip button. 'rec', 'solo', 'mute' or 'select' are supported.";
+    if (!(state in BUTTON_STATES)) throw "Invalid button state. 'off', 'on' or 'flashing' are supported.";
 
     let message = [144, STRIP_BUTTON[button] + (strip - 1), BUTTON_STATES[state]];
 
@@ -118,9 +134,10 @@ function setStripLight(strip, button, state) {
 // Sets the appropriate audio level LED on the strip. 
 // Note this is actually based on 0-127 but this is a convenience method to directly define which LED is operated on.
 // Only one LED on at a time possible - restriction of the unit itself :(
-function setAudioLevelLed(strip, level) {
-    if(strip < 1 || strip > 8) throw "Strip number out of bounds (1-8)";
-    if(level < 0 || level > 8) throw "Level meter LED number out of bounds (0-8)";
+function setAudioLevelLed(strip, level) 
+{
+    if (strip < 1 || strip > 8) throw "Strip number out of bounds (1-8)";
+    if (level < 0 || level > 8) throw "Level meter LED number out of bounds (0-8)";
 
     let midi_level = level === 0 ? 0 : Math.round((126 / 8) * level);
 
@@ -131,9 +148,10 @@ function setAudioLevelLed(strip, level) {
 
 // Note this sets the level internally in the device, but doesn't output the level on setting. 
 // Only one LED on at a time possible - restriction of the unit itself :(
-function setRotaryLevelLed(strip, level) {
-    if(strip < 1 || strip > 8) throw "Strip number out of bounds (1-8)";
-    if(level < 0 || level > 12) throw "Rotary meter LED number out of bounds (0-8)";
+function setRotaryLevelLed(strip, level) 
+{
+    if (strip < 1 || strip > 8) throw "Strip number out of bounds (1-8)";
+    if (level < 0 || level > 12) throw "Rotary meter LED number out of bounds (0-8)";
 
     let relative_level = level === 0 ? 0 : Math.round((126 / 12) * level);
 

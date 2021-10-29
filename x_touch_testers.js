@@ -1,3 +1,4 @@
+const prompt = require('prompt-sync')({sigint: true});
 const midiEvent = require('./x_touch_events');
 const x_touch_set = require('./x_touch_setters');
 const LcdState = require('./LcdState');
@@ -22,7 +23,27 @@ midiEvent.on('strip_button', (name, strip, value) => {
 // SETTING THE DEVICE
 const Midi = require('midi');
 const output = new Midi.output();
-output.openPort(0);
+const portCount = output.getPortCount();
+var portNames = [];
+
+for (let port = 0; port < portCount; port ++) {
+    let portName = output.getPortName(port);
+    portNames.push(portName); 
+    console.log(port + " - " + portName);
+}
+
+let portSelection = prompt('Type the number of the listed MIDI device do you wish to use: ');
+let portSelectionInteger = parseInt(portSelection);
+
+if (isNaN(portSelectionInteger)) {
+    console.log('Port selection must be a number.');
+    process.exit(1);
+} else if (portSelectionInteger < 0 || portSelectionInteger > portCount) {
+    console.log('You\'ve chosen a port outside of the listed values.');
+    process.exit(1);
+}
+
+output.openPort(portSelectionInteger);
 
 // Fader setting test
 output.sendMessage(x_touch_set.setFader(1, 20));
