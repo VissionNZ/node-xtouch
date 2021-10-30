@@ -1,16 +1,7 @@
-import PromptSync from "prompt-sync";
-import SoundMixer from "native-sound-mixer";
-
 const midiEvent = require('./x_touch_events.js');
 const x_touch_set = require('./x_touch_setters.js');
 const LcdState = require('./LcdState');
-
-const prompt = PromptSync({sigint: true});
-
-const {Device, DeviceType} = SoundMixer;
-
-const device = SoundMixer.getDefaultDevice(DeviceType.RENDER);
-console.log(device);
+const prompt = require('prompt-sync')({sigint: true});
 
 // EVENTS FROM THE DEVICE
 midiEvent.on('rotary_turn', (strip, value) => {
