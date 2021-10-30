@@ -1,7 +1,16 @@
-const prompt = require('prompt-sync')({sigint: true});
-const midiEvent = require('./x_touch_events');
-const x_touch_set = require('./x_touch_setters');
+import PromptSync from "prompt-sync";
+import SoundMixer from "native-sound-mixer";
+
+const midiEvent = require('./x_touch_events.js');
+const x_touch_set = require('./x_touch_setters.js');
 const LcdState = require('./LcdState');
+
+const prompt = PromptSync({sigint: true});
+
+const {Device, DeviceType} = SoundMixer;
+
+const device = SoundMixer.getDefaultDevice(DeviceType.RENDER);
+console.log(device);
 
 // EVENTS FROM THE DEVICE
 midiEvent.on('rotary_turn', (strip, value) => {
@@ -22,28 +31,52 @@ midiEvent.on('strip_button', (name, strip, value) => {
 
 // SETTING THE DEVICE
 const Midi = require('midi');
+
+const input = new Midi.input();
 const output = new Midi.output();
-const portCount = output.getPortCount();
-var portNames = [];
 
-for (let port = 0; port < portCount; port ++) {
-    let portName = output.getPortName(port);
-    portNames.push(portName); 
-    console.log(port + " - " + portName);
+const inputPortCount = input.getPortCount();
+const outputPortCount = output.getPortCount();
+
+var inputPortNames = [];
+var outputPortNames = [];
+
+for (let port = 0; port < inputPortCount; port ++) {
+    let inputPortName = output.getPortName(port);
+    inputPortNames.push(inputPortName); 
+    console.log(port + " - " + inputPortName);
 }
 
-let portSelection = prompt('Type the number of the listed MIDI device do you wish to use: ');
-let portSelectionInteger = parseInt(portSelection);
+let inputPortSelection = prompt('Enter the MIDI device\'s number you wish to use as the input: ');
+let inputPortSelectionInteger = parseInt(inputPortSelection);
 
-if (isNaN(portSelectionInteger)) {
-    console.log('Port selection must be a number.');
+if (isNaN(inputPortSelectionInteger)) {
+    console.log('Input port selection must be a number.');
     process.exit(1);
-} else if (portSelectionInteger < 0 || portSelectionInteger > portCount) {
-    console.log('You\'ve chosen a port outside of the listed values.');
+} else if (inputPortSelectionInteger < 0 || inputPortSelectionInteger + 1 > inputPortCount) {
+    console.log('You\'ve chosen an input port outside of the listed values.');
     process.exit(1);
 }
 
-output.openPort(portSelectionInteger);
+for (let port = 0; port < outputPortCount; port ++) {
+    let outputPortName = output.getPortName(port);
+    outputPortNames.push(outputPortName); 
+    console.log(port + " - " + outputPortName);
+}
+
+let outputPortSelection = prompt('Enter the MIDI device\'s number you wish to use as the output: ');
+let outputPortSelectionInteger = parseInt(outputPortSelection);
+
+if (isNaN(outputPortSelectionInteger)) {
+    console.log('Output port selection must be a number.');
+    process.exit(1);
+} else if (outputPortSelectionInteger < 0 || outputPortSelectionInteger + 1 > outputPortCount) {
+    console.log('You\'ve chosen an output port outside of the listed values.');
+    process.exit(1);
+}
+
+output.openPort(outputPortSelectionInteger);
+input.openPort(inputPortSelectionInteger);
 
 // Fader setting test
 output.sendMessage(x_touch_set.setFader(1, 20));
