@@ -25,36 +25,40 @@ const STRIP_BUTTON = {
 };
 
 // Helper function
-function getKeyByValue(object, value) {
+function getKeyByValue(object, value) 
+{
     return Object.keys(object).find(key => object[key] === value);
 }
 
-// Set up a new input.
-input.openPort(0);
-input.ignoreTypes(true, false, false);
+function init(port)
+{
+    // Set up a new input.
+    input.openPort(0);
+    input.ignoreTypes(true, false, false);
 
-// Receive midi message and pass to appropriate handler.
-input.on('message', (deltaTime, message) => {
-    // CC's
-    if (message[0] == 176) { 
-        if (Object.values(ROTARY).indexOf(message[1]) !== -1) 
-            rotary(message, false, deltaTime);
-        if (Object.values(FADER).indexOf(message[1]) !== -1) 
-            fader(message, false, deltaTime);
-    }
+    // Receive midi message and pass to appropriate handler.
+    input.on('message', (deltaTime, message) => {
+        // CC's
+        if (message[0] == 176) { 
+            if (Object.values(ROTARY).indexOf(message[1]) !== -1) 
+                rotary(message, false, deltaTime);
+            if (Object.values(FADER).indexOf(message[1]) !== -1) 
+                fader(message, false, deltaTime);
+        }
 
-    // Notes
-    if (message[0] == 144) {
-        if (Object.values(ROTARY_BUTTON).indexOf(message[1]) !== -1) 
-            rotary(message, true, deltaTime);
+        // Notes
+        if (message[0] == 144) {
+            if (Object.values(ROTARY_BUTTON).indexOf(message[1]) !== -1) 
+                rotary(message, true, deltaTime);
 
-        if (Object.values(FADER_TOUCH).indexOf(message[1]) !== -1) 
-            fader(message, true, deltaTime);
+            if (Object.values(FADER_TOUCH).indexOf(message[1]) !== -1) 
+                fader(message, true, deltaTime);
 
-        if (message[1] >= 8 && message[1] <= 39) 
-            button(message, deltaTime);
-    }
-});
+            if (message[1] >= 8 && message[1] <= 39) 
+                button(message, deltaTime);
+        }
+    });
+}
 
 function rotary(message, pressed, delta) 
 {
@@ -102,4 +106,7 @@ function button(message, delta)
     midiEvent.emit('strip_button', buttonName, strip, message[2] === 127 ? 'on' : 'off', delta);
 }
 
-module.exports = midiEvent;
+module.exports = {
+    midiEvent: midiEvent,
+    init: init
+}
