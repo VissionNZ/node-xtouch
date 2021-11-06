@@ -1,0 +1,42 @@
+{
+    "root": {
+        "0": {
+            "lcd_line_1": "Select",
+            "lcd_line_2": "Driver",
+            "next": "driver_selection",
+            "prev": null
+        },
+        "1": {
+            "lcd_line_1": "Master",
+            "lcd_line_2": "Control",
+            "next": "set_strip:WIN_OUTPUT_MASTER",
+            "prev": null
+        }
+    },
+    "driver_selection": {
+        "1": {
+            "lcd_line_1": "VoiceMt",
+            "lcd_line_2": "Input",
+            "next": "set_strip:VM_INPUT_SELECT",
+            "prev": "root"
+        },
+        "2": {
+            "lcd_line_1": "VoiceMt",
+            "lcd_line_2": "Output",
+            "next": "set_strip:VM_OUTPUT_SELECT",
+            "prev": "root"
+        },
+        "3": {
+            "lcd_line_1": "Windows",
+            "lcd_line_2": "Input",
+            "next": "set_strip:WIN_INPUT_SELECT",
+            "prev": "root"
+        },
+        "4": {
+            "lcd_line_1": "Windows",
+            "lcd_line_2": "Output",
+            "next": "set_strip:WIN_OUTPUT_SELECT",
+            "prev": "root"
+        }
+    }
+}

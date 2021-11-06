@@ -3,6 +3,9 @@ const initEvents = require('./x_touch_events.js').init;
 const x_touch_set = require('./x_touch_setters.js');
 const LcdState = require('./LcdState');
 const prompt = require('prompt-sync')({sigint: true});
+const MenuStrip = require('./strip-states/MenuStrip');
+
+const DEBUG = false;
 
 // Our sound mixer instance.
 const SoundMixer = require('native-sound-mixer').default;
@@ -22,6 +25,17 @@ const outputPortCount = output.getPortCount();
 
 var inputPortNames = [];
 var outputPortNames = [];
+
+const stripStates = {
+    1: new MenuStrip(1, 'ROOT_MENU'),
+    2: new MenuStrip(2, 'ROOT_MENU'),
+    3: new MenuStrip(3, 'ROOT_MENU'),
+    4: new MenuStrip(4, 'ROOT_MENU'),
+    5: new MenuStrip(5, 'ROOT_MENU'),
+    6: new MenuStrip(6, 'ROOT_MENU'),
+    7: new MenuStrip(7, 'ROOT_MENU'),
+    8: new MenuStrip(8, 'ROOT_MENU'),
+}
 
 for (let port = 0; port < inputPortCount; port ++) {
     let inputPortName = output.getPortName(port);
@@ -61,23 +75,35 @@ output.openPort(outputPortSelectionInteger);
 input.openPort(inputPortSelectionInteger);
 initEvents(outputPortSelectionInteger);
 
-// EVENTS FROM THE DEVICE TO FORWARD TO THE HANDLER
+if (DEBUG) console.log(stripStates);
+
+// EVENTS FROM THE DEVICE TO FORWARD TO THE STRIP HANDLER
 midiEvent.on('rotary_turn', (strip, value) => {
-    console.log('rotary turn - strip:' + strip + ' value:' + value);
-});
-midiEvent.on('rotary_press', (strip, value) => {
-    console.log('rotary press - strip:' + strip + ' value:' + value);
-});
-midiEvent.on('fader_move', (strip, value) => {
-    console.log('fader move - strip:' + strip + ' value:' + value);
-});
-midiEvent.on('fader_touch', (strip, value) => {
-    console.log('fader touch - strip:' + strip + ' value:' + value);
-});
-midiEvent.on('strip_button', (name, strip, value) => {
-    console.log('strip button - name:' + name + ' strip:' + strip + ' value:' + value);
+    if (DEBUG) console.log('rotary turn - strip:' + strip + ' value:' + value);
+    stripStates[strip].handleRotary('turn', value);
 });
 
+midiEvent.on('rotary_press', (strip, value) => {
+    if (DEBUG) console.log('rotary press - strip:' + strip + ' value:' + value);
+    stripStates[strip].handleRotary('press', value);
+});
+
+midiEvent.on('fader_move', (strip, value) => {
+    if (DEBUG) console.log('fader move - strip:' + strip + ' value:' + value);
+    stripStates[strip].handleFader('move', value);
+});
+
+midiEvent.on('fader_touch', (strip, value) => {
+    if (DEBUG) console.log('fader touch - strip:' + strip + ' value:' + value);
+    stripStates[strip].handleFader('press', value);
+});
+
+midiEvent.on('strip_button', (name, strip, value) => {
+    if (DEBUG) console.log('strip button - name:' + name + ' strip:' + strip + ' value:' + value);
+    stripStates[strip].handleButton(name, value);
+});
+
+// GENERAL LCD TICKER PROCESS
 setInterval(() => {
     for (const [key, lcdState] of Object.entries(x_touch_set.lcdStates)) {
         if (lcdState == null) continue;
