@@ -58,32 +58,21 @@ function checkSessionState(device, session)
 
 function checkDeviceState(device)
 {
-  let results = {
-    'name': false,
-    'volume': false,
-    'balance': false,
-    'mute': false,
-  };
-
-  // console.log(SoundMixer.devices[device].volume);
-
   // PLAYBACK
   if (currentDeviceStates[device].name != SoundMixer.devices[device].name) {
-    results.name = true;
-    // console.log('Name changed');
+    // Name changed
     populateDeviceStates();
     DeviceEvents.emit('system_device_property_changed', 'name', device);
   }
 
   if (round(currentDeviceStates[device].volume, 1) != round(SoundMixer.devices[device].volume, 1)) {
-    results.volume = true;
+    // Volume changed
     populateDeviceStates();
     DeviceEvents.emit('system_device_property_changed', 'volume', device);
   }
 
   if (currentDeviceStates[device].mute != SoundMixer.devices[device].mute) {
-    results.mute = true;
-    // console.log('Mute changed');
+    // Mute changed
     populateDeviceStates();
     DeviceEvents.emit('system_device_property_changed', 'mute', device);
   }
@@ -92,37 +81,36 @@ function checkDeviceState(device)
     (currentDeviceStates[device].left != SoundMixer.devices[device].balance.left)
     || (currentDeviceStates[device].right != SoundMixer.devices[device].balance.right)
   ) {
-    results.balance = true;
-    // console.log('Balance changed');
+    // Balance changed
     populateDeviceStates();
     DeviceEvents.emit('system_device_property_changed', 'balance', device);
   }
 
   // RECORDING
-
-  return results;
 }
 
 // POLL DEVICES
 function poll() {
   updateLastPolled();
 
+  for (const device in SoundMixer.devices) {
+    checkDeviceState(device);
+  }  
+    
   // DEFAULT PLAYBACK DEVICE CHANGED
   if (defaultPlaybackDevice.name != SoundMixer.getDefaultDevice(0).name) {
     console.log('default playback device changed');
+    DeviceEvents.emit('system_device_property_changed', 'default_playback');
     defaultPlaybackDevice = SoundMixer.getDefaultDevice(0);
   }
 
   // DEFAULT CAPTURE DEVICE CHANGED
   if (defaultCaptureDevice.name != SoundMixer.getDefaultDevice(1).name) {
     console.log('default capture device changed');
+    DeviceEvents.emit('system_device_property_changed', 'default_record');
     defaultCaptureDevice = SoundMixer.getDefaultDevice(1);
   }
 
-  for (const device in SoundMixer.devices) {
-    checkDeviceState(device);
-  }  
-    
 }  
 
 // Start polling
@@ -132,8 +120,8 @@ const pollInterval = setInterval(poll, 500);
 // Exports
 module.exports = {
   Devices: SoundMixer.devices,
-  DefaultPlaybackDevice: SoundMixer.getDefaultDevice(0),
-  DefaultRecordingDevice: SoundMixer.getDefaultDevice(0),
+  DefaultPlaybackDevice: () => SoundMixer.getDefaultDevice(0),
+  DefaultRecordingDevice: () => SoundMixer.getDefaultDevice(1),
   DeviceEvents: DeviceEvents,
   getLastPolled: getLastPolled()
 }

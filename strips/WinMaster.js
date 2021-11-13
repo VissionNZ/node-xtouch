@@ -22,6 +22,8 @@ class WinOutputMaster extends Strip {
         deviceEvents.on('system_device_property_changed', (property, device) => {
             if (device == this.deviceNumber) {
                 this.updateFromDeviceState();
+            } else if (typeof device === 'undefined') {
+                this.updateButtons();
             }
         });        
     }
@@ -67,25 +69,11 @@ class WinOutputMaster extends Strip {
             if (value === 'on') {
                 this.selectTimeMillis = process.hrtime.bigint();
             } else if (value === 'off') {
-                // Allow a 200 ms delay before actioning to avoid accidental presses. 
-                if ((process.hrtime.bigint() - this.selectTimeMillis) > 200000000) {
-                    let nextMenu = menuStructure[this.currentMenu][this.currentOption]['next'];
-                    
-                    let splitOption = nextMenu.split(':');
-                    
-                    if (typeof splitOption[1] !== 'undefined') {
-                        console.log("TAKE ACTION: " + splitOption[1]);
-                    } else {
-                        this.currentMenu = nextMenu;
-                        this.updateOptionsInGroup();
-                        this.updateLcd();
-                    }
-
-                    this.currentOption = 0;
+                if ((process.hrtime.bigint() - this.selectTimeMillis) > 1000000000) {
+                    // Long press. 
                 } else {
-                    console.log('Too quick');
-                }
-                
+                    // Quick press.
+                }      
             }
             
         }
@@ -94,22 +82,14 @@ class WinOutputMaster extends Strip {
 
     // Go back one level if "REC" is pressed
     handleButton(action, value) {
-        if (action === 'mute') {
-            
-            if (value === 'on') {
-                this.selectTimeMillis = process.hrtime.bigint();
-            } else if (value === 'off') {
-                if ((process.hrtime.bigint() - this.selectTimeMillis) > 200000000) {
-                    Devices[this.deviceNumber].mute = !this.deviceState.mute;
-                    
-                    this.output.sendMessage(
-                        x_touch_set.setStripLight(this.stripIndex, 'mute', this.deviceState.mute ? 'on' : 'off')
-                    );
-                } else {
-                    console.log('Too quick');
-                }
-            }
-            
+        if (action === 'mute' && value === 'off') {
+            Devices[this.deviceNumber].mute = !this.deviceState.mute;
+
+            this.output.sendMessage(
+                x_touch_set.setStripLight(this.stripIndex, 'mute', this.deviceState.mute ? 'on' : 'off')
+            );
+        } else if (action === 'select' && value === 'off') {
+            console.log('Not supported. Setting default device not allowed.');
         }
     }
 
@@ -130,7 +110,7 @@ class WinOutputMaster extends Strip {
         this.output.sendMessage(
             x_touch_set.setStripLight(
                 this.stripIndex, 'select',
-                Devices[this.deviceNumber].name == DefaultPlaybackDevice.name ? 'on' : 'flash'
+                Devices[this.deviceNumber].name == DefaultPlaybackDevice().name ? 'on' : 'flash'
             )
         );
     }
