@@ -113,7 +113,7 @@ function setFader(strip, level)
 {
     if (strip < 1 || strip > 8) throw "Strip number out of bounds (1-8)";
     if (level < 0 || strip > 127) throw "Fader level out of bounds (0-127)";
-
+    
     let message = [176, FADER[strip], level];
 
     return message;

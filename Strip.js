@@ -1,7 +1,8 @@
 class Strip {
 
-    constructor(stripIndex, type) {
+    constructor(stripIndex, type, output) {
         this.stripIndex = stripIndex;
+        this.output = output;
 
         if (this.validType(type)) {
             this.type = type
@@ -47,6 +48,15 @@ class Strip {
         console.log(this.stripIndex + ' button does not have an action handler.');
     }
 
+    updateLcd()
+    {
+        console.log(this.stripIndex + ' lcd does not have a state assigned.');
+    }
+
+    forceStripRefresh()
+    {
+        console.log('forceStripRefresh not implemented');
+    }
 }
 
 module.exports = Strip;

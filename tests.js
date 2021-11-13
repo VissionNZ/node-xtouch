@@ -1,3 +1,59 @@
+const midiEvent = require('./x_touch_events.js').midiEvent;
+const initEvents = require('./x_touch_events.js').init;
+const x_touch_set = require('./x_touch_setters.js');
+const LcdState = require('./LcdState');
+const prompt = require('prompt-sync')({sigint: true});
+
+// SETTING THE INTERFACE DEVICE
+const Midi = require('midi');
+
+const input = new Midi.input();
+const output = new Midi.output();
+
+const inputPortCount = input.getPortCount();
+const outputPortCount = output.getPortCount();
+
+// INPUT DEVICE SELECTION - E.G. MIDI CONTROLLER ADJUSTS VOLUME
+for (let port = 0; port < inputPortCount; port ++) {
+    let inputPortName = input.getPortName(port);
+
+    console.log(port + " - " + inputPortName);
+}
+
+let inputPortSelection = prompt('Enter the MIDI device\'s number you wish to use as the input: ');
+let inputPortSelectionInteger = parseInt(inputPortSelection);
+
+if (isNaN(inputPortSelectionInteger)) {
+    console.log('Input port selection must be a number.');
+    process.exit(1);
+} else if (inputPortSelectionInteger < 0 || inputPortSelectionInteger + 1 > inputPortCount) {
+    console.log('You\'ve chosen an input port outside of the listed values.');
+    process.exit(1);
+} else {
+    console.log("You selected '" + input.getPortName(inputPortSelectionInteger) + "' for the input port.");
+}
+
+// OUTPUT DEVICE SELECTION - E.G. WINDOWS VOLUME ADJUSTS FADER POSITION
+for (let port = 0; port < outputPortCount; port ++) {
+    let outputPortName = output.getPortName(port);
+
+    console.log(port + " - " + outputPortName);
+}
+
+let outputPortSelection = prompt('Enter the MIDI device\'s number you wish to use as the output: ');
+let outputPortSelectionInteger = parseInt(outputPortSelection);
+
+if (isNaN(outputPortSelectionInteger)) {
+    console.log('Output port selection must be a number.');
+    process.exit(1);
+} else if (outputPortSelectionInteger < 0 || outputPortSelectionInteger + 1 > outputPortCount) {
+    console.log('You\'ve chosen an output port outside of the listed values.');
+    process.exit(1);
+} else {
+    console.log("You selected '" + output.getPortName(outputPortSelectionInteger) + "' for the output port.");
+    output.openPort(outputPortSelectionInteger);
+}
+
 // Fader setting test
 output.sendMessage(x_touch_set.setFader(1, 20));
 output.sendMessage(x_touch_set.setFader(2, 100));

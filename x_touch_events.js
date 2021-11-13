@@ -33,7 +33,7 @@ function getKeyByValue(object, value)
 function init(port)
 {
     // Set up a new input.
-    input.openPort(0);
+    input.openPort(port);
     input.ignoreTypes(true, false, false);
 
     // Receive midi message and pass to appropriate handler.

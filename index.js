@@ -3,16 +3,10 @@ const initEvents = require('./x_touch_events.js').init;
 const x_touch_set = require('./x_touch_setters.js');
 const LcdState = require('./LcdState');
 const prompt = require('prompt-sync')({sigint: true});
-const MenuStrip = require('./strip-states/MenuStrip');
-
-const DEBUG = false;
-
-// Our sound mixer instance.
-const SoundMixer = require('native-sound-mixer').default;
-
-// Sound mixer constants
-const DeviceType = require('native-sound-mixer').DeviceType;
-const AudioSessionState = require('native-sound-mixer').AudioSessionState;
+const MenuStrip = require('./strips/Menu');
+const deviceEvents = require('./system_devices.js').DeviceEvents;
+const WinOutputMaster = require('./strips/WinMaster');
+const DEBUG = true;
 
 // SETTING THE INTERFACE DEVICE
 const Midi = require('midi');
@@ -26,20 +20,12 @@ const outputPortCount = output.getPortCount();
 var inputPortNames = [];
 var outputPortNames = [];
 
-const stripStates = {
-    1: new MenuStrip(1, 'ROOT_MENU'),
-    2: new MenuStrip(2, 'ROOT_MENU'),
-    3: new MenuStrip(3, 'ROOT_MENU'),
-    4: new MenuStrip(4, 'ROOT_MENU'),
-    5: new MenuStrip(5, 'ROOT_MENU'),
-    6: new MenuStrip(6, 'ROOT_MENU'),
-    7: new MenuStrip(7, 'ROOT_MENU'),
-    8: new MenuStrip(8, 'ROOT_MENU'),
-}
-
+// INPUT DEVICE SELECTION - E.G. MIDI CONTROLLER ADJUSTS VOLUME
 for (let port = 0; port < inputPortCount; port ++) {
-    let inputPortName = output.getPortName(port);
+    let inputPortName = input.getPortName(port);
+
     inputPortNames.push(inputPortName); 
+
     console.log(port + " - " + inputPortName);
 }
 
@@ -52,8 +38,11 @@ if (isNaN(inputPortSelectionInteger)) {
 } else if (inputPortSelectionInteger < 0 || inputPortSelectionInteger + 1 > inputPortCount) {
     console.log('You\'ve chosen an input port outside of the listed values.');
     process.exit(1);
+} else {
+    console.log("You selected '" + input.getPortName(inputPortSelectionInteger) + "' for the input port.");
 }
 
+// OUTPUT DEVICE SELECTION - E.G. WINDOWS VOLUME ADJUSTS FADER POSITION
 for (let port = 0; port < outputPortCount; port ++) {
     let outputPortName = output.getPortName(port);
     outputPortNames.push(outputPortName); 
@@ -69,15 +58,36 @@ if (isNaN(outputPortSelectionInteger)) {
 } else if (outputPortSelectionInteger < 0 || outputPortSelectionInteger + 1 > outputPortCount) {
     console.log('You\'ve chosen an output port outside of the listed values.');
     process.exit(1);
+} else {
+    console.log("You selected '" + output.getPortName(outputPortSelectionInteger) + "' for the output port.");
+    output.openPort(outputPortSelectionInteger);
 }
 
-output.openPort(outputPortSelectionInteger);
-input.openPort(inputPortSelectionInteger);
-initEvents(outputPortSelectionInteger);
+// CONFIGURE INPUT/OUTPUT PORTS AND START UP EVENTS
+initEvents(inputPortSelectionInteger);
+
+// Set all strips to root selection menu at first.
+// TODO: load from saved state, including the device selection. Handle command line request to "reset".
+const stripStates = {
+    1: new WinOutputMaster(1, 7, output), // new MenuStrip(1, 'ROOT_MENU'), //
+    2: new MenuStrip(2, 'ROOT_MENU', output),
+    3: new MenuStrip(3, 'ROOT_MENU', output),
+    4: new MenuStrip(4, 'ROOT_MENU', output),
+    5: new MenuStrip(5, 'ROOT_MENU', output),
+    6: new MenuStrip(6, 'ROOT_MENU', output),
+    7: new MenuStrip(7, 'ROOT_MENU', output),
+    8: new MenuStrip(8, 'ROOT_MENU', output),
+}
 
 if (DEBUG) console.log(stripStates);
 
-// EVENTS FROM THE DEVICE TO FORWARD TO THE STRIP HANDLER
+// EVENTS FROM THE SYSTEM DEVICES
+deviceEvents.on('system_device_property_changed', (property, device) => {
+    if (DEBUG) console.log(device);
+   
+});
+
+// EVENTS FROM THE MIDI CONTROLLER TO FORWARD TO THE STRIP HANDLER
 midiEvent.on('rotary_turn', (strip, value) => {
     if (DEBUG) console.log('rotary turn - strip:' + strip + ' value:' + value);
     stripStates[strip].handleRotary('turn', value);
@@ -95,7 +105,7 @@ midiEvent.on('fader_move', (strip, value) => {
 
 midiEvent.on('fader_touch', (strip, value) => {
     if (DEBUG) console.log('fader touch - strip:' + strip + ' value:' + value);
-    stripStates[strip].handleFader('press', value);
+    stripStates[strip].handleFader('touch', value);
 });
 
 midiEvent.on('strip_button', (name, strip, value) => {
