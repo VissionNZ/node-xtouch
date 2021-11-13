@@ -3,7 +3,7 @@ const initEvents = require('./x_touch_events.js').init;
 const x_touch_set = require('./x_touch_setters.js');
 const LcdState = require('./LcdState');
 const prompt = require('prompt-sync')({sigint: true});
-const MenuStrip = require('./strips/Menu');
+const Menu = require('./strips/Menu');
 const deviceEvents = require('./system_devices.js').DeviceEvents;
 const WinOutputMaster = require('./strips/WinMaster');
 const DEBUG = true;
@@ -69,14 +69,14 @@ initEvents(inputPortSelectionInteger);
 // Set all strips to root selection menu at first.
 // TODO: load from saved state, including the device selection. Handle command line request to "reset".
 const stripStates = {
-    1: new WinOutputMaster(1, 7, output), // new MenuStrip(1, 'ROOT_MENU'), //
-    2: new MenuStrip(2, 'ROOT_MENU', output),
-    3: new MenuStrip(3, 'ROOT_MENU', output),
-    4: new MenuStrip(4, 'ROOT_MENU', output),
-    5: new MenuStrip(5, 'ROOT_MENU', output),
-    6: new MenuStrip(6, 'ROOT_MENU', output),
-    7: new MenuStrip(7, 'ROOT_MENU', output),
-    8: new MenuStrip(8, 'ROOT_MENU', output),
+    1: new Menu(1, 'ROOT_MENU', output),
+    2: new Menu(2, 'ROOT_MENU', output),
+    3: new Menu(3, 'ROOT_MENU', output),
+    4: new Menu(4, 'ROOT_MENU', output),
+    5: new Menu(5, 'ROOT_MENU', output),
+    6: new Menu(6, 'ROOT_MENU', output),
+    7: new Menu(7, 'ROOT_MENU', output),
+    8: new Menu(8, 'ROOT_MENU', output),
 }
 
 // if (DEBUG) console.log(stripStates);

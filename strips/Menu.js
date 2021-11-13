@@ -5,13 +5,14 @@ const LcdState = require('../LcdState');
 
 class Menu extends Strip {
 
-    constructor(stripIndex, type) {
-        super(stripIndex, type);
+    constructor(stripIndex, type, output) {
+        super(stripIndex, type, output);
 
         this.currentMenu = 'root';
         this.currentOption = 0;
 
         this.updateOptionsInGroup();
+        this.updateLcd();
     }
 
     // 65 CW, 1 CCW
@@ -21,64 +22,48 @@ class Menu extends Strip {
             if (value === 1 && this.currentOption > 0) this.currentOption--;
             
             this.updateLcd();
-        } else if (action === 'press') {
+        } else if (action === 'press' && value === 'off') {
+            // Allow a 200 ms delay before actioning to avoid accidental presses. 
+            let nextMenu = menuStructure[this.currentMenu][this.currentOption]['next'];
             
-            if (value === 'on') {
-                this.selectTimeMillis = process.hrtime.bigint();
-            } else if (value === 'off') {
-                // Allow a 200 ms delay before actioning to avoid accidental presses. 
-                if ((process.hrtime.bigint() - this.selectTimeMillis) > 200000000) {
-                    let nextMenu = menuStructure[this.currentMenu][this.currentOption]['next'];
-                    
-                    let splitOption = nextMenu.split(':');
-                    
-                    if (typeof splitOption[1] !== 'undefined') {
-                        console.log("TAKE ACTION: " + splitOption[1]);
-                    } else {
-                        this.currentMenu = nextMenu;
-                        this.updateOptionsInGroup();
-                        this.updateLcd();
-                    }
-
-                    this.currentOption = 0;
-                } else {
-                    console.log('Too quick');
-                }
-                
+            let splitOption = nextMenu.split(':');
+            
+            if (typeof splitOption[1] !== 'undefined') {
+                console.log("TAKE ACTION: " + splitOption[1]);
+            } else {
+                this.currentMenu = nextMenu;
+                this.updateOptionsInGroup();
+                this.updateLcd();
             }
-            
+
+            this.currentOption = 0;
         }
         
     }
 
     // Go back one level if "REC" is pressed
     handleButton(action, value) {
-        if (action === 'rec') {
+        if (action === 'rec' && value === 'off') {
+            this.currentMenu = menuStructure[this.currentMenu][this.currentOption]['prev'];
+            this.currentOption = 0;
             
-            if (value === 'on') {
-                this.selectTimeMillis = process.hrtime.bigint();
-            } else if (value === 'off') {
-                if ((process.hrtime.bigint() - this.selectTimeMillis) > 200000000) {
-                    this.currentMenu = menuStructure[this.currentMenu][this.currentOption]['prev'];
-                    this.currentOption = 0;
-                    
-                    this.updateOptionsInGroup();
-                    this.updateLcd();
-                } else {
-                    console.log('Too quick');
-                }
-            }
-            
+            this.updateOptionsInGroup();
+            this.updateLcd();
         }
     }
 
     updateLcd()
     {
-        x_touch_set.lcdStates[this.stripIndex] = new LcdState(
-            'red', 
-            'upper', 
-            menuStructure[this.currentMenu][this.currentOption]['lcd_line_1'], 
-            menuStructure[this.currentMenu][this.currentOption]['lcd_line_2']
+        this.output.sendMessage(
+            x_touch_set.updateLcdWithState(
+                this.stripIndex,
+                new LcdState(
+                    'red', 
+                    'upper', 
+                    menuStructure[this.currentMenu][this.currentOption]['lcd_line_1'], 
+                    menuStructure[this.currentMenu][this.currentOption]['lcd_line_2']
+                )
+            )
         );
     }
 
