@@ -124,7 +124,7 @@ function setStripLight(strip, button, state)
 {
     if (strip < 1 || strip > 8) throw "Strip number out of bounds (1-8)";
     if (!(button in STRIP_BUTTON)) throw "Invalid strip button. 'rec', 'solo', 'mute' or 'select' are supported.";
-    if (!(state in BUTTON_STATES)) throw "Invalid button state. 'off', 'on' or 'flashing' are supported.";
+    if (!(state in BUTTON_STATES)) throw "Invalid button state. 'off', 'on' or 'flash' are supported.";
 
     let message = [144, STRIP_BUTTON[button] + (strip - 1), BUTTON_STATES[state]];
 

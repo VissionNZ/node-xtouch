@@ -120,15 +120,7 @@ function poll() {
   }
 
   for (const device in SoundMixer.devices) {
-    let results = checkDeviceState(device);
-    // TODO: Nothing actually happens here, we emit the events in the checkDeviceState function. Do we need 'results'? 
-
-    // Now check sessions for this device.
-    // SESSION NAME CHANGED
-    // SESSION VOLUME CHANGED
-    // SESSION BALANCE CHANGED
-    // SESSION MUTE CHANGED
-
+    checkDeviceState(device);
   }  
     
 }  

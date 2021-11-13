@@ -79,7 +79,7 @@ const stripStates = {
     8: new MenuStrip(8, 'ROOT_MENU', output),
 }
 
-if (DEBUG) console.log(stripStates);
+// if (DEBUG) console.log(stripStates);
 
 // EVENTS FROM THE SYSTEM DEVICES
 deviceEvents.on('system_device_property_changed', (property, device) => {
@@ -122,4 +122,4 @@ setInterval(() => {
         lcdState.advanceBottom();
         output.sendMessage(x_touch_set.updateLcdWithState(key, lcdState));
     }
-}, 300);
+}, 100);

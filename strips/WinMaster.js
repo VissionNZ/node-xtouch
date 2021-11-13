@@ -4,6 +4,8 @@ const x_touch_set = require('../x_touch_setters.js');
 const LcdState = require('../LcdState');
 const Devices = require('../system_devices').Devices;
 const deviceEvents = require('../system_devices.js').DeviceEvents;
+const { Device } = require("native-sound-mixer");
+const { DefaultPlaybackDevice } = require("../system_devices");
 
 class WinOutputMaster extends Strip {
 
@@ -19,7 +21,7 @@ class WinOutputMaster extends Strip {
         // React to system device changes
         deviceEvents.on('system_device_property_changed', (property, device) => {
             if (device == this.deviceNumber) {
-                this.updateFader();
+                this.updateFromDeviceState();
             }
         });        
     }
@@ -44,6 +46,10 @@ class WinOutputMaster extends Strip {
         return Math.round(
             127 * Devices[this.deviceNumber].volume
         );
+    }
+
+    midiToDecimal(midiValue) {
+        return parseFloat((midiValue / 127).toFixed(1));
     }
 
     // 65 CW, 1 CCW
@@ -95,6 +101,10 @@ class WinOutputMaster extends Strip {
             } else if (value === 'off') {
                 if ((process.hrtime.bigint() - this.selectTimeMillis) > 200000000) {
                     Devices[this.deviceNumber].mute = !this.deviceState.mute;
+                    
+                    this.output.sendMessage(
+                        x_touch_set.setStripLight(this.stripIndex, 'mute', this.deviceState.mute ? 'on' : 'off')
+                    );
                 } else {
                     console.log('Too quick');
                 }
@@ -105,7 +115,7 @@ class WinOutputMaster extends Strip {
 
     handleFader(action, value) {
         if (action === 'move') {
-
+            Devices[this.deviceNumber].volume = this.midiToDecimal(value); 
         } else if (action === 'touch') {
             
         }
@@ -113,8 +123,16 @@ class WinOutputMaster extends Strip {
 
     updateButtons()
     {
-        // x_touch_set.setStripLight(this.stripIndex, 'mute', this.deviceState.mute ? 'on' : 'off');
-        // x_touch_set.setStripLight(this.stripIndex, 'select', 'flashing');
+        this.output.sendMessage(
+            x_touch_set.setStripLight(this.stripIndex, 'mute', this.deviceState.mute ? 'on' : 'off')
+        );
+
+        this.output.sendMessage(
+            x_touch_set.setStripLight(
+                this.stripIndex, 'select',
+                Devices[this.deviceNumber].name == DefaultPlaybackDevice.name ? 'on' : 'flash'
+            )
+        );
     }
 
     updateFader()
