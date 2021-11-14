@@ -1,11 +1,7 @@
-const Strip = require("../Strip");
+const { Strip, StripEvents } = require("../Strip");
 const menuStructure = require('../main_menu.json');
 const x_touch_set = require('../x_touch_setters.js');
 const LcdState = require('../LcdState');
-
-const EventEmitter = require('events');
-class MenuEvent extends EventEmitter {}
-const MenuEvents = new MenuEvent();
 
 class Menu extends Strip {
 
@@ -34,7 +30,7 @@ class Menu extends Strip {
             let splitOption = nextMenu.split(':');
             
             if (typeof splitOption[1] !== 'undefined') {
-                MenuEvents.emit('menu_action', splitOption[1], this.stripIndex);
+                StripEvents.emit('menu_action', splitOption[1], this.stripIndex);
             } else {
                 this.currentMenu = nextMenu;
                 this.updateOptionsInGroup();
@@ -81,5 +77,4 @@ class Menu extends Strip {
 
 module.exports = {
     Menu: Menu,
-    menuEvents: MenuEvents
 }

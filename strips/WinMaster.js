@@ -1,4 +1,4 @@
-const Strip = require('../Strip');
+const { Strip } = require('../Strip');
 const menuStructure = require('../main_menu.json');
 const x_touch_set = require('../x_touch_setters.js');
 const LcdState = require('../LcdState');
@@ -52,7 +52,7 @@ class WinOutputMaster extends Strip {
     }
 
     midiToDecimal(midiValue) {
-        return parseFloat((midiValue / 127).toFixed(1));
+        return parseFloat((midiValue / 127).toFixed(2));
     }
 
     // 65 CW, 1 CCW

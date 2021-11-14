@@ -4,8 +4,8 @@ const x_touch_set = require('./x_touch_setters.js');
 const LcdState = require('./LcdState');
 const prompt = require('prompt-sync')({sigint: true});
 
+const { StripEvents } = require('./Strip');
 const Menu = require('./strips/Menu').Menu;
-const menuEvents = require('./strips/Menu').menuEvents;
 const WinOutputMaster = require('./strips/WinMaster');
 
 const deviceEvents = require('./system_devices.js').DeviceEvents;
@@ -86,7 +86,7 @@ const stripStates = {
 // if (DEBUG) console.log(stripStates);
 
 // MENU SELECTION EVENTS
-menuEvents.on('menu_action', (action, stripIndex) => {
+StripEvents.on('menu_action', (action, stripIndex) => {
     if (action === 'WIN_OUTPUT_MASTER') {
         stripStates[stripIndex] = new WinOutputMaster(stripIndex, null, output);
     }

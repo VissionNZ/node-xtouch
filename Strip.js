@@ -1,5 +1,10 @@
 const x_touch_set = require('./x_touch_setters');
 
+const EventEmitter = require('events');
+class StripEvent extends EventEmitter {}
+const StripEvents = new StripEvent();
+
+
 class Strip {
 
     constructor(stripIndex, type, output) {
@@ -74,4 +79,7 @@ class Strip {
     }
 }
 
-module.exports = Strip;
+module.exports = {
+    Strip: Strip,
+    StripEvents: StripEvents
+};
