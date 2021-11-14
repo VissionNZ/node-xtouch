@@ -1,3 +1,5 @@
+const x_touch_set = require('./x_touch_setters');
+
 class Strip {
 
     constructor(stripIndex, type, output) {
@@ -51,6 +53,19 @@ class Strip {
     updateLcd()
     {
         console.log(this.stripIndex + ' lcd does not have a state assigned.');
+    }
+
+    updateButtons()
+    {
+        this.output.sendMessage(x_touch_set.setStripLight(this.stripIndex, 'rec', 'off'));
+        this.output.sendMessage(x_touch_set.setStripLight(this.stripIndex, 'select', 'off'));
+        this.output.sendMessage(x_touch_set.setStripLight(this.stripIndex, 'mute', 'off'));
+        this.output.sendMessage(x_touch_set.setStripLight(this.stripIndex, 'solo', 'off'));
+    }
+
+    updateFader()
+    {
+        this.output.sendMessage(x_touch_set.setFader(this.stripIndex, 0));
     }
 
     forceStripRefresh()

@@ -13,6 +13,8 @@ class Menu extends Strip {
 
         this.updateOptionsInGroup();
         this.updateLcd();
+        this.updateFader();
+        this.updateButtons();
     }
 
     // 65 CW, 1 CCW
