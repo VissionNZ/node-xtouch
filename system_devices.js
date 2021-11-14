@@ -56,6 +56,19 @@ function checkSessionState(device, session)
 
 }
 
+function getDeviceNumber(deviceToFind)
+{
+  var result = -1;
+
+  SoundMixer.devices.forEach((device, index) => {
+    if (device.name == deviceToFind.name && device.type == deviceToFind.type) {
+      result = index;
+    }
+  });
+
+  return result;
+}
+
 function checkDeviceState(device)
 {
   // PLAYBACK
@@ -123,7 +136,8 @@ module.exports = {
   DefaultPlaybackDevice: () => SoundMixer.getDefaultDevice(0),
   DefaultRecordingDevice: () => SoundMixer.getDefaultDevice(1),
   DeviceEvents: DeviceEvents,
-  getLastPolled: getLastPolled()
+  getLastPolled: getLastPolled(),
+  getDeviceNumber: getDeviceNumber
 }
 
 

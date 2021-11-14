@@ -3,6 +3,10 @@ const menuStructure = require('../main_menu.json');
 const x_touch_set = require('../x_touch_setters.js');
 const LcdState = require('../LcdState');
 
+const EventEmitter = require('events');
+class MenuEvent extends EventEmitter {}
+const MenuEvents = new MenuEvent();
+
 class Menu extends Strip {
 
     constructor(stripIndex, type, output) {
@@ -25,13 +29,12 @@ class Menu extends Strip {
             
             this.updateLcd();
         } else if (action === 'press' && value === 'off') {
-            // Allow a 200 ms delay before actioning to avoid accidental presses. 
             let nextMenu = menuStructure[this.currentMenu][this.currentOption]['next'];
             
             let splitOption = nextMenu.split(':');
             
             if (typeof splitOption[1] !== 'undefined') {
-                console.log("TAKE ACTION: " + splitOption[1]);
+                MenuEvents.emit('menu_action', splitOption[1], this.stripIndex);
             } else {
                 this.currentMenu = nextMenu;
                 this.updateOptionsInGroup();
@@ -76,4 +79,7 @@ class Menu extends Strip {
 
 }
 
-module.exports = Menu;
+module.exports = {
+    Menu: Menu,
+    menuEvents: MenuEvents
+}

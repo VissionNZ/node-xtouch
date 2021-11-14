@@ -3,10 +3,14 @@ const initEvents = require('./x_touch_events.js').init;
 const x_touch_set = require('./x_touch_setters.js');
 const LcdState = require('./LcdState');
 const prompt = require('prompt-sync')({sigint: true});
-const Menu = require('./strips/Menu');
-const deviceEvents = require('./system_devices.js').DeviceEvents;
+
+const Menu = require('./strips/Menu').Menu;
+const menuEvents = require('./strips/Menu').menuEvents;
 const WinOutputMaster = require('./strips/WinMaster');
-const DEBUG = true;
+
+const deviceEvents = require('./system_devices.js').DeviceEvents;
+
+const DEBUG = false;
 
 // SETTING THE INTERFACE DEVICE
 const Midi = require('midi');
@@ -81,10 +85,16 @@ const stripStates = {
 
 // if (DEBUG) console.log(stripStates);
 
+// MENU SELECTION EVENTS
+menuEvents.on('menu_action', (action, stripIndex) => {
+    if (action === 'WIN_OUTPUT_MASTER') {
+        stripStates[stripIndex] = new WinOutputMaster(stripIndex, null, output);
+    }
+});
+
 // EVENTS FROM THE SYSTEM DEVICES
 deviceEvents.on('system_device_property_changed', (property, device) => {
     if (DEBUG) console.log(device);
-   
 });
 
 // EVENTS FROM THE MIDI CONTROLLER TO FORWARD TO THE STRIP HANDLER
@@ -122,4 +132,4 @@ setInterval(() => {
         lcdState.advanceBottom();
         output.sendMessage(x_touch_set.updateLcdWithState(key, lcdState));
     }
-}, 100);
+}, 300);

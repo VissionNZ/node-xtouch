@@ -1,18 +1,19 @@
-const Strip = require("../Strip");
+const Strip = require('../Strip');
 const menuStructure = require('../main_menu.json');
 const x_touch_set = require('../x_touch_setters.js');
 const LcdState = require('../LcdState');
 const Devices = require('../system_devices').Devices;
 const deviceEvents = require('../system_devices.js').DeviceEvents;
-const { Device } = require("native-sound-mixer");
-const { DefaultPlaybackDevice } = require("../system_devices");
+const SoundMixer = require('native-sound-mixer').default;
+const DefaultPlaybackDevice = require('../system_devices').DefaultPlaybackDevice;
+const systemDevices = require('../system_devices');
 
 class WinOutputMaster extends Strip {
 
     constructor(stripIndex, deviceNumber, output) {
         super(stripIndex, 'WIN_OUTPUT_MASTER', output);
         
-        this.deviceNumber = deviceNumber;
+        this.deviceNumber = deviceNumber == null ? systemDevices.getDeviceNumber(DefaultPlaybackDevice()) : deviceNumber;
         this.currentAdjustMode = 'Vol';
         this.deviceState = Devices[this.deviceNumber];
 
