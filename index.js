@@ -5,7 +5,7 @@ const prompt = require('prompt-sync')({ sigint: true });
 
 const { StripEvents } = require('./Strip');
 const Menu = require('./strips/Menu').Menu;
-const WinOutputMaster = require('./strips/WinMaster');
+const WinOutputMaster = require('./strips/WinOutputMaster');
 
 const deviceEvents = require('./system_devices.js').DeviceEvents;
 
