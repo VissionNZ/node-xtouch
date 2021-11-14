@@ -1,8 +1,7 @@
 const midiEvent = require('./x_touch_events.js').midiEvent;
 const initEvents = require('./x_touch_events.js').init;
 const x_touch_set = require('./x_touch_setters.js');
-const LcdState = require('./LcdState');
-const prompt = require('prompt-sync')({sigint: true});
+const prompt = require('prompt-sync')({ sigint: true });
 
 const { StripEvents } = require('./Strip');
 const Menu = require('./strips/Menu').Menu;

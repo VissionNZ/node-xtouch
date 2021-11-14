@@ -4,7 +4,6 @@ const EventEmitter = require('events');
 class StripEvent extends EventEmitter {}
 const StripEvents = new StripEvent();
 
-
 class Strip {
 
     constructor(stripIndex, type, output) {
