@@ -1,3 +1,8 @@
+# IMPORTANT UPDATE #
+I no longer own an X-Touch Extender... ☹️ So safe to say I won't be doing much more work on this. But if anyone else can springboard off this medieval code, then fantastic! 
+
+I AM making an [open-sourced MIDI router](https://github.com/themessnz/MIDIpunk) when I get time never... 
+
 # node-xtouch
 Behringer X Touch Extender NodeJS interface.
 
